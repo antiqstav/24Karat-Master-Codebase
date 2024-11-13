@@ -212,20 +212,13 @@ public final class Constants {
   public static class ClimberConstants{
     public static final int leftCANSparkID = 12;
     public static final int rightCANSparkID = 14;
-
     public static final double kClimberSpeed = 0.95;
-
   }
 
 
   public static class LEDConstants{
     public static final int LED_PORT1 = 9;
-    public static final int LedLength1 = 30+28;
-
-    
-    
-    ;
-
+    public static final int LedLength1 = 58;
   }
 
 }

@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Drivetrain;
 
-public class Autospin extends Command {
-   private Drivetrain drivetrain = Drivetrain.getInstance();
+public class AdjustRobotHeading extends Command {
+  private Drivetrain drivetrain = Drivetrain.getInstance();
 
   double setAngle;
   double currentAngle;
@@ -24,51 +24,25 @@ public class Autospin extends Command {
   double kI;
   double kD;
 
-  PIDController rotationController;
+  PIDController rotController;
 
-  public Autospin(double angleDegrees) {
+  public AdjustRobotHeading(double angleDegrees) {
 
     setAngle = angleDegrees;
     addRequirements(drivetrain);
-    // Use addRequirements() here to declare subsystem dependencies.
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-
-    kP = 1.0;
-    kI = 0.0;
-    kD = 0.0;
-
-    rotationController = new PIDController(kP, kI, kD);
-
+    kP = 0.0; kI = 0.0; kD = 0.0;
+    rotController = new PIDController(kP, kI, kD);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
     currentAngle = RobotContainer.drivetrain.getHeading();
-
-    frontSpeed = -RobotContainer.driverController.getLeftY() 
-    * Math.abs(RobotContainer.driverController.getLeftY()) * 2.25;
-
-    sideSpeed = -RobotContainer.driverController.getLeftX() 
-    * Math.abs(RobotContainer.driverController.getLeftX()) * 2.25;
-
-    rotationSpeed = rotationController.calculate(currentAngle, setAngle);
-
-
-    RobotContainer.drivetrain.swerveDrive(
-      frontSpeed, 
-      sideSpeed, 
-      rotationSpeed, 
-      true, 
-      new Translation2d(), 
-      true
-    );
-
   }
 
   // Called once the command ends or is interrupted.
@@ -87,18 +61,12 @@ public class Autospin extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-
-    //if within 5 deg margin of error
-    if(Math.abs(setAngle-currentAngle) < 5.0){ 
+    if (currentAngle == setAngle) {
       return true;
     }
-
-    //or if driver cancels rotation with rotation joystick input > 0.3
-    else if(Math.abs(RobotContainer.driverController.getRightX()) > 0.3 
-    || Math.abs(RobotContainer.driverController.getRightY())>0.3){
+    else if (RobotContainer.driverController.getRightTriggerAxis() == 1.0) {
       return true;
     }
-
     return false;
   }
 }

@@ -4,15 +4,8 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-
-
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.Climb;
@@ -75,26 +67,13 @@ public class RobotContainer {
 
   private final JoystickButton resetHeading_Start = new JoystickButton(driverController.getHID(), XboxController.Button.kStart.value);
 
-  private final SendableChooser<Command> autoChooser;
-
   public RobotContainer() {
 
     ledStrip = new PhyscialLEDStrip(9, 58); //58
 
-    registerNamedCommands();
-
     configureBindings();
 
     drivetrain.setDefaultCommand(new SwerveDrive());
-   //Add all the choise of Autonomous modes to the Smart Dashboard
-    autoChooser = AutoBuilder.buildAutoChooser();
-
-
-  
-    SmartDashboard.putData("AutoChooser", autoChooser);
-
-    
-
   }
 
 
@@ -232,10 +211,6 @@ public class RobotContainer {
 
     //operatorController.povLeft().onTrue(new FFShooterAngle(m_Shooter, 0.015));
     operatorController.povDown().onTrue(new FFShooterAngle(m_Shooter, 0.055));
-
-
-    
-     
   }
 
 
@@ -245,57 +220,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
-  }
-
-  //Autonomous Commands:
-  public void registerNamedCommands(){
-    //Drivetrain Commands:
-    NamedCommands.registerCommand("ResetHeading", (new InstantCommand(() -> drivetrain.zeroHeading())).deadlineWith(new InstantCommand(() ->  new WaitCommand(1))));
-
-    NamedCommands.registerCommand("StopModules", (new InstantCommand(() -> drivetrain.stopModules())).deadlineWith(new InstantCommand(() ->  new WaitCommand(1))));
-    //Shooter Commands:
-    NamedCommands.registerCommand("RunShooter", (new InstantCommand(() -> m_ShooterRoller.setSpeed(Constants.ShooterConstants.kShooterSpeed))));
-    NamedCommands.registerCommand("StopShooter", (new InstantCommand(() -> m_ShooterRoller.stopShooter())).deadlineWith(new InstantCommand(() ->  new WaitCommand(0.2))));
-    NamedCommands.registerCommand("ShooterMiddle", (new SetShooterAngle(m_Shooter, .018)));//new InstantCommand(() -> m_Shooter.setPivotSpeed(Constants.ShooterConstants.kPivotDownSpeed))).deadlineWith(new InstantCommand(() ->  new WaitCommand(0.5))));
-    NamedCommands.registerCommand("ShooterUp", (new SetShooterAngle(m_Shooter, 0.085)).deadlineWith(new WaitCommand(2)));//new InstantCommand(() -> m_Shooter.setPivotSpeed(Constants.ShooterConstants.kPivotUpSpeed))).deadlineWith(new InstantCommand(() ->  new WaitCommand(0.5))));
-    NamedCommands.registerCommand("ShooterDown", (new SetShooterAngle(m_Shooter, 0)).deadlineWith(new WaitCommand(2)));//new SetShooterAngle(m_Shooter, 0.07)));//new InstantCommand(() -> m_Shooter.setPivotSpeed(Constants.ShooterConstants.kPivotUpSpeed))).deadlineWith(new InstantCommand(() ->  new WaitCommand(0.5))));
-    NamedCommands.registerCommand("StopShooterPivot", (new InstantCommand(() -> m_Shooter.setPivotSpeed(0))).deadlineWith(new InstantCommand(() ->  new WaitCommand(0.5))));
-    NamedCommands.registerCommand("ResetEncoders", (new InstantCommand(() -> m_Shooter.zeroEncoder()).deadlineWith(new InstantCommand(() -> new WaitCommand(0.5)))));
-    NamedCommands.registerCommand("ShooterManualDown", (new InstantCommand(() -> m_Shooter.setPivotSpeed(-0.4))).deadlineWith(new InstantCommand(() ->  new WaitCommand(0.5))));
-    NamedCommands.registerCommand("ShooterManualUp", (new InstantCommand(() -> m_Shooter.setPivotSpeed(0.4))).deadlineWith(new InstantCommand(() ->  new WaitCommand(0.5))));
-
-
-    //Intake Commands:
-    NamedCommands.registerCommand("IntakeUp", (new IntakeUp(m_Intake)));
-    NamedCommands.registerCommand("ManualIntakeUp", (new InstantCommand(() -> m_Intake.setArmSpeed(Constants.IntakeConstants.kArmUpSpeed))).deadlineWith(new InstantCommand(() ->  new WaitCommand(2))));
-    NamedCommands.registerCommand("IntakeDown", (new IntakeDown(m_Intake)));
-    NamedCommands.registerCommand("ManualIntakeDown", (new InstantCommand(() -> m_Intake.setArmSpeed(-0.8))).deadlineWith(new InstantCommand(() ->  new WaitCommand(2))));
-    NamedCommands.registerCommand("IntakeOut", (new InstantCommand(() -> m_IntakeRoller.setRollerSpeed(-0.95))).deadlineWith(new InstantCommand(() ->  new WaitCommand(3))));
-    NamedCommands.registerCommand("IntakeIn", (new InstantCommand(() -> m_IntakeRoller.setRollerSpeed(0.95))).deadlineWith(new InstantCommand(() ->  new WaitCommand(1.5))));
-    NamedCommands.registerCommand("StopIntake", (new InstantCommand(() -> m_IntakeRoller.stopRollerSpeed())).deadlineWith(new InstantCommand(() ->  new WaitCommand(0.2))));
-    NamedCommands.registerCommand("IntakePIDReset", (new InstantCommand(() -> m_Intake.zeroEncoder())));
-
-
-    //Macros
-    NamedCommands.registerCommand("MacroCommand", (new SequentialCommandGroup(
-      new IntakeDown(m_Intake),
-      new IntakeIn(m_IntakeRoller).until(() -> !m_IntakeRoller.getDigitalInput().get()), 
-      new IntakeIn(m_IntakeRoller).withTimeout(0.4),
-      new ParallelCommandGroup(
-        //new Shoot(m_ShooterRoller).until(() -> m_IntakeRoller.getDigitalInput().get()), 
-        new IntakeUp(m_Intake), 
-        new SetShooterAngle(m_Shooter, 0.016)))));
-    
-    NamedCommands.registerCommand("MacroCommandStage", (new SequentialCommandGroup(
-      new IntakeDown(m_Intake),
-      new IntakeIn(m_IntakeRoller).until(() -> !m_IntakeRoller.getDigitalInput().get()),
-      new IntakeIn(m_IntakeRoller).withTimeout(0.4), 
-      new ParallelCommandGroup(
-        //new Shoot(m_ShooterRoller).until(() -> m_IntakeRoller.getDigitalInput().get()), 
-        new IntakeUp(m_Intake), 
-        new SetShooterAngle(m_Shooter, 0.007)))));
-
-    NamedCommands.registerCommand("checkNote", new InstantCommand(() -> m_IntakeRoller.checkNote()));
+    return null;
   }
 }
